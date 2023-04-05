@@ -48,7 +48,7 @@ class IPQS:
     def malicious_url_scanner_api(self, url: str, vars: dict = {}) -> dict:
         url = 'https://www.ipqualityscore.com/api/json/url/%s/%s' % (self.key, urllib.parse.quote_plus(url))
         x = requests.get(url, params = vars)
-        print(x.text)
+        # print(x.text)
         return (json.loads(x.text))
 
 
@@ -89,7 +89,7 @@ def home(request):
 
             print(original_link)
 
-            strictness = 0
+            strictness = 2
 
             #custom feilds
             additional_params = {
@@ -106,7 +106,7 @@ def home(request):
                                     url=f"{original_link}"))
             ss = "https://api.apiflash.com/v1/urltoimage?" + params
 
-                # print(is_phishing(original_link))
+            print(is_phishing(original_link))
 
     
             if result['unsafe'] == False and is_phishing(original_link) == True :
