@@ -9,7 +9,7 @@ tasks:
     echo "from uum_project.settings import *" > uum_project/local_settings.py &&
     echo "ALLOWED_HOSTS = ['*']" >> uum_project/local_settings.py &&
     export DJANGO_SETTINGS_MODULE=uum_project.local_settings &&
-    python3 manage.py runserver 0.0.0.0:8080
+    python3 manage.py runserver 0.0.0.0:8080 --insecure
 github:
     prebuilds:
         pullRequestsFromForks: true
