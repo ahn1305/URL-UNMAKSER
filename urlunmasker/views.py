@@ -81,6 +81,7 @@ def is_phishing(url):
 def home(request):
     if request.method == "POST":
         input_url = request.POST.get('uname')
+        print(type(input_url))
 
         # check if url is short or not
 
@@ -156,6 +157,63 @@ def home(request):
 
     return render(request,"urlunmasker/home.html",{"unsafe_data":unsafe_data})
 
+
+@xframe_options_exempt
+@csrf_exempt
+def chrome_req(request):
+    if request.method == "POST":
+        original_link = request.POST.get('url')
+        print(original_link)
+        strictness = 2
+        #custom feilds
+        additional_params = {
+            'strictness' : strictness
+        }
+
+        ipqs = IPQS()
+        result = ipqs.malicious_url_scanner_api(f"{original_link}", additional_params)
+        params = urlencode(dict(access_key="601a514c968647c8a9b74ff0dfea3a42",
+                                url=f"{original_link}"))
+        ss = "https://api.apiflash.com/v1/urltoimage?" + params
+
+        print(is_phishing(original_link))
+
+        if result['unsafe'] == False and is_phishing(original_link) == True :
+            
+            result['unsafe'] = True
+            result['malware'] = True
+            result['suspicious'] = True
+            result['phishing'] = True
+            result['risk_score'] = 100
+        
+        elif result['unsafe'] == True or result['suspicious'] == True and is_phishing(original_link) == False:
+            result['unsafe'] = False
+            result['malware'] = False
+            result['suspicious'] = False
+            result['phishing'] = False
+            result['risk_score'] = 100
+
+
+
+        if result['suspicious'] == True:
+            try:
+                check_data = UnsafeURL.objects.get(origianl_url=original_link)
+            except ObjectDoesNotExist:
+                data = UnsafeURL(short_url=None, origianl_url=original_link, status="Unsafe")
+                data.save()
+
+
+        return render(request,"urlunmasker/result.html",{"original_url":original_link,"security_details":result,
+        "ss":ss,'short_url':None})
+
+
+        # else:
+        #     messages.warning(request,"Please a short URL to unmask")
+        #     return redirect('home')
+
+    unsafe_data = UnsafeURL.objects.all()
+
+    return render(request,"urlunmasker/home.html",{"unsafe_data":unsafe_data})
 
 
 
